@@ -2,9 +2,12 @@ bin/
 bin-int/
 
 .vs/
+.vscode/
 .cache/
 
 **.vcxproj
 **.vcxproj.filters
-compile_commands.json
 **.sln
+
+Makefile
+compile_commands.json
