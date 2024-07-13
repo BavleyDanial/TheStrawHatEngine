@@ -4,22 +4,40 @@ local workspaceName = "TheStrawHat"
 local engineName = "TheStrawHatEngine"
 local gameName = "TheStrawHatGame"
 
-local targetDir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+
+dependencies = {}
+dependencies["glfw"] = engineName .. "/vendor/glfw"
 
 workspace (workspaceName)
+    startproject (gameName)
     configurations {"Debug", "Release"}
     architecture "x64"
-
+    
+    group "Dependencies"
+        include (engineName .. "/vendor/glfw") 
+    group ""
+    
     project (engineName)
         location (engineName)
         kind "StaticLib"
         language "C++"
         cppdialect "C++20"
-        targetdir ("bin/" .. targetDir .. "/%{prj.name}")
-	    objdir ("bin-int/" .. targetDir .. "/%{prj.name}")
+        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
         files {"%{prj.name}/src/**.h", "%{prj.name}/src/**.cpp"}
-        includedirs {"%{prj.name}/src"}
+        
+        includedirs {
+            "%{prj.name}/src",
+            "%{dependencies.glfw}/include/",
+        }
+
+        links {
+            "GLFW",
+            "opengl32.lib" 
+        }
+
         filter "configurations:Debug"
             defines {"TSH_DEBUG"}
             symbols "On"
@@ -32,12 +50,17 @@ workspace (workspaceName)
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++20"
-        targetdir ("bin/" .. targetDir .. "/%{prj.name}")
-	    objdir ("bin-int/" .. targetDir .. "/%{prj.name}")
+        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
         files {"%{prj.name}/src/**.h", "%{prj.name}/src/**.cpp"}
-        includedirs { engineName .. "/src" }
-        links { engineName }
+        includedirs {
+            engineName .. "/src",
+            "%{dependencies.glfw}/include"
+        }
+        links {
+            engineName,
+        }
 
         filter "configurations:Debug"
             defines {"TSH_DEBUG"}

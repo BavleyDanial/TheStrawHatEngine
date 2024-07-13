@@ -1,0 +1,3 @@
+[submodule "TheStrawHatEngine/vendor/glfw"]
+	path = TheStrawHatEngine/vendor/glfw
+	url = https://github.com/BavleyDanial/glfw.git

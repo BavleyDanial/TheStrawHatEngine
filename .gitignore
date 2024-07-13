@@ -1,13 +1,17 @@
+# My folders
 bin/
 bin-int/
 
+# Crab folders
 .vs/
 .vscode/
 .cache/
 
+# Crab files
 **.vcxproj
 **.vcxproj.filters
 **.sln
 
+# Build/Compiler/Config files
 Makefile
 compile_commands.json
