@@ -1,5 +1,10 @@
 #include "EngineApplication.h"
 
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexBuffer.h"
+#include "Renderer/IndexBuffer.h"
+#include "Renderer/Shader.h"
+
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
@@ -35,64 +40,40 @@ namespace TSH {
 	{
 		std::cout << "Running..." << std::endl;
 
-		const char* vertex_shader_text =
-			"#version 330\n"
-			"laytout (location = 0) in vec3 vPos;\n"
-			"void main()\n"
-			"{\n"
-			"    gl_Position = (vPos, 1.0);\n"
-			"}\n";
-		
-		const char* fragment_shader_text =
-			"#version 330\n"
-			"out vec4 fragment;\n"
-			"void main()\n"
-			"{\n"
-			"    fragment = vec4(1.0, 1.0, 1.0, 1.0);\n"
-			"}\n";
-
 		std::vector<float> vertices = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.0f,  0.5f, 0.0f,
+			-0.5f, -0.5f, 0.0f,	-1.0f,	0.0f, 0.0f, // 0
+			 0.5f, -0.5f, 0.0f,  1.0f,	0.0f, 0.0f, // 1
+			 0.5f,  0.5f, 0.0f,  1.0f,  1.0f, 0.0f, // 2
+			-0.5f,  0.5f, 0.0f,	-1.0f,  1.0f, 0.0f, // 3
 		};
 
-		GLuint vertex_buffer;
-		glGenBuffers(1, &vertex_buffer);
-		glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
-	
-		const GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
-		glCompileShader(vertex_shader);
-	
-		const GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
-		glCompileShader(fragment_shader);
-	
-		const GLuint program = glCreateProgram();
-		glAttachShader(program, vertex_shader);
-		glAttachShader(program, fragment_shader);
-		glLinkProgram(program);
-	
-		const GLint vpos_location = glGetAttribLocation(program, "vPos");
-	
-		GLuint vertex_array;
-		glGenVertexArrays(1, &vertex_array);
-		glBindVertexArray(vertex_array);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+		std::vector<uint32_t> indices = {
+			0, 1, 2,
+			2, 3, 0,
+		};
+
+		VertexArray va;
+		VertexBuffer vb(vertices, GL_STATIC_DRAW);
+		IndexBuffer ib(indices, GL_STATIC_DRAW);
+		VertexBufferLayout vbl;
+		vbl.Push<float>(3);
+		vbl.Push<float>(3);
+		va.AddBuffer(vb, vbl);
+
+		// TODO: Use a shader library and change location of res folder based on configuration?
+		Shader programShader("res/Shaders/default.glsl");
+		programShader.Bind();
 		
 		while (mIsRunning)
 		{
 			/* Render here */
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glClearColor(0.2f, 0.2, 0.2, 1.0f);
+			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 			glViewport(0, 0, mWindow.GetWidth(), mWindow.GetHeight());
 	
-			glUseProgram(program);
-			glBindVertexArray(vertex_array);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
+			programShader.Bind();
+			va.Bind();
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indices.data());
 			
 			mWindow.UpdateWindow();
 		}
