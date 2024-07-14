@@ -8,6 +8,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 dependencies = {}
 dependencies["glfw"] = engineName .. "/vendor/glfw"
+dependencies["glad"] = engineName .. "/vendor/glad"
 
 workspace (workspaceName)
     startproject (gameName)
@@ -15,7 +16,8 @@ workspace (workspaceName)
     architecture "x64"
     
     group "Dependencies"
-        include (engineName .. "/vendor/glfw") 
+        include (engineName .. "/vendor/glfw")
+        include (engineName .. "/vendor/glad") 
     group ""
     
     project (engineName)
@@ -31,10 +33,12 @@ workspace (workspaceName)
         includedirs {
             "%{prj.name}/src",
             "%{dependencies.glfw}/include/",
+            "%{dependencies.glad}/include/",
         }
 
         links {
             "GLFW",
+            "glad",
             "opengl32.lib" 
         }
 
@@ -54,10 +58,13 @@ workspace (workspaceName)
 	    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
         files {"%{prj.name}/src/**.h", "%{prj.name}/src/**.cpp"}
+        
         includedirs {
-            engineName .. "/src",
-            "%{dependencies.glfw}/include"
+            engineName .. "/src/",
+            "%{dependencies.glfw}/include/",
+            "%{dependencies.glad}/include/"
         }
+        
         links {
             engineName,
         }

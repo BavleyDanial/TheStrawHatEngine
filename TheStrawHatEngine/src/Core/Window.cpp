@@ -2,6 +2,7 @@
 #include "EngineApplication.h"
 
 #include <iostream>
+//#include <glad/glad.h>
 
 namespace TSH {
 
@@ -22,7 +23,7 @@ namespace TSH {
         mWindowProps = windowProps;
 
 		 /* Create a windowed mode window and its OpenGL context */
-		mpWindowHandle = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+		mpWindowHandle = glfwCreateWindow(mWindowProps.width, mWindowProps.height, "Hello World", NULL, NULL);
 		if (!mpWindowHandle)
 		{
             std::cout << "Couldn't create window" << std::endl;
@@ -31,7 +32,7 @@ namespace TSH {
 		}
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		if (mWindowProps.isVsync)
@@ -39,6 +40,12 @@ namespace TSH {
 
 		/* Make the window's context current */
 		glfwMakeContextCurrent(mpWindowHandle);
+
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			std::cout << "Failed to initialize GLAD" << std::endl;
+			return;
+		}    
 
         glfwSetWindowCloseCallback(mpWindowHandle, [](GLFWwindow* window){
             EngineApplication::Get().Shutdown();
